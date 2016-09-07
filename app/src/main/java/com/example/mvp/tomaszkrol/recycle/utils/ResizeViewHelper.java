@@ -13,21 +13,43 @@ public class ResizeViewHelper {
 
         final int width = view.getWidth();
 
-        view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST),
+        view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
 
         return view.getMeasuredHeight();
     }
 
-    public static void animateChangeSizeOfView(final View v, final int from, final int to) {
+    public static int getLayoutWidth(View view) {
 
-        if(from == to){
-            return;
+        final int width = view.getWidth();
+
+        view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+
+        return view.getMeasuredWidth();
+    }
+
+    public static void animateChangeSizeOfView(final View v, final int hFrom, final int hTo,
+            final int wFrom, final int wTo) {
+
+        if(hFrom != hTo){
+            v.getLayoutParams().height = hFrom;
+            v.requestLayout();
         }
 
+        
+
+        v.getLayoutParams().width = wFrom;
+        v.requestLayout();
+
+        if(hFrom == hTo && wFrom == wTo){
+            return
+        }
+        
+
         final int initialHeight = v.getMeasuredHeight();
-        if((to - from) < 0){
-            v.getLayoutParams().height = from;
+        if((hTo - hFrom) < 0){
+            v.getLayoutParams().height = hFrom;
             v.requestLayout();
         }
 
@@ -35,13 +57,13 @@ public class ResizeViewHelper {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 int h = 0;
-                if((to - from) > 1){
-                    h = interpolatedTime == 1? RecyclerView.LayoutParams.WRAP_CONTENT : from + (int) ((to - from) * interpolatedTime);
+                if((hTo - hFrom) > 1){
+                    h = interpolatedTime == 1? RecyclerView.LayoutParams.WRAP_CONTENT : hFrom + (int) ((hTo - hFrom) * interpolatedTime);
                     v.getLayoutParams().height = h;
                     v.requestLayout();
                 }
                 else{
-                    h = from + (int) ((to - from) * interpolatedTime);
+                    h = hFrom + (int) ((hTo - hFrom) * interpolatedTime);
                     v.getLayoutParams().height = h;
                     v.requestLayout();
                 }
@@ -53,7 +75,7 @@ public class ResizeViewHelper {
             }
         };
 
-        a.setDuration((int) (Math.abs(to - from)*2 / v.getContext().getResources().getDisplayMetrics().density));
+        a.setDuration((int) (Math.abs(hTo - hFrom)*2 / v.getContext().getResources().getDisplayMetrics().density));
         v.startAnimation(a);
     }
 }

@@ -63,24 +63,22 @@ public class CustomAnimator extends DefaultItemAnimator {
     public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder, @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
 
         moveLock = true;
-        if (newHolder instanceof RAdapter.Holder) {
-            performAnimationChange((RAdapter.Holder) newHolder,
-                    (RAdapter.Holder) oldHolder,
-                    (CustomHolderInfo) preInfo, (CustomHolderInfo) postInfo);
-        }
+        performAnimationChange(newHolder, oldHolder,
+                (CustomHolderInfo) preInfo, (CustomHolderInfo) postInfo);
 
         return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
     }
 
-    public void performAnimationChange(@NonNull final RAdapter.Holder holder, @NonNull final RAdapter.Holder oldholder,
+    public void performAnimationChange(@NonNull final RecyclerView.ViewHolder holder, @NonNull final RecyclerView.ViewHolder oldholder,
                                        @NonNull final CustomHolderInfo preInfo,
                                        @NonNull CustomHolderInfo postInfo) {
 
 
-
         if (preInfo.color != postInfo.color) {
 
-            final ObjectAnimator crossFadeColor = ColorAnimator.asArgb(holder.getColorChangeTarget(),
+            IColorChanging colorHolder = (IColorChanging)holder;
+            final ObjectAnimator crossFadeColor = ColorAnimator.asArgb(
+                    colorHolder.getColorChangeTarget(),
                     "backgroundColor",
                     preInfo.color, postInfo.color);
 
@@ -111,7 +109,10 @@ public class CustomAnimator extends DefaultItemAnimator {
             dispatchAnimationStarted(oldholder);
         }
 
-        ResizeViewHelper.animateChangeSizeOfView(holder.binding.getRoot(), preInfo.height, postInfo.height);
+        ResizeViewHelper.animateChangeSizeOfView(holder.itemView,
+                preInfo.height,
+                postInfo.height,
+                preInfo.width, postInfo.width);
     }
 
     @Override
@@ -124,13 +125,12 @@ public class CustomAnimator extends DefaultItemAnimator {
         int colorChangeTarget;
 
         int height;
+        int width;
 
         @Override
         public ItemHolderInfo setFrom(RecyclerView.ViewHolder holder) {
-            if (holder instanceof RAdapter.Holder) {
-                RAdapter.Holder raHolder = (RAdapter.Holder) holder;
-                height = ResizeViewHelper.getLayoutHeight(raHolder.binding.getRoot());
-            }
+                height = ResizeViewHelper.getLayoutHeight(holder.itemView);
+                width = ResizeViewHelper.getLayoutWidth(holder.itemView);
             return super.setFrom(holder);
         }
 

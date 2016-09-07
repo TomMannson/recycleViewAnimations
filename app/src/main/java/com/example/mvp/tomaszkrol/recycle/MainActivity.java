@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         binding.removeRadio.setOnCheckedChangeListener(this);
         binding.modifyRadio.setOnCheckedChangeListener(this);
 
-        adapter = new RAdapter();
-        adapter.setData(list);
+        adapter = new RAdapter(list);
+//        adapter.setData(list);
         binding.list.setAdapter(adapter);
     }
 

@@ -6,20 +6,27 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.example.mvp.tomaszkrol.recycle.anim.AnimPerformer;
+import com.example.mvp.tomaszkrol.recycle.anim.AnimationHandler;
+import com.example.mvp.tomaszkrol.recycle.anim.impl.EvaluationChangeAnimHandler;
+import com.example.mvp.tomaszkrol.recycle.anim.impl.ResizeAnimHandler;
+import com.example.mvp.tomaszkrol.recycle.utils.CardEvaluationAnimatorHelper;
 import com.example.mvp.tomaszkrol.recycle.utils.ColorAnimator;
 import com.example.mvp.tomaszkrol.recycle.utils.ResizeViewHelper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * Created by tomasz.krol on 2016-08-29.
  */
-public class CustomAnimator extends DefaultItemAnimator {
+public class CustomAnimator extends DefaultItemAnimator implements AnimPerformer.OnAnimationEndListener {
 
     HashMap<RecyclerView.ViewHolder, AnimatorInfo> animatorMap = new HashMap<>();
     boolean moveLock = false;
@@ -36,6 +43,7 @@ public class CustomAnimator extends DefaultItemAnimator {
         CustomHolderInfo info = new CustomHolderInfo();
         info.setFrom(viewHolder);
         info.setColorTransformInfo(viewHolder);
+        info.setCardEvaluation(viewHolder);
         return info;
     }
 
@@ -46,6 +54,7 @@ public class CustomAnimator extends DefaultItemAnimator {
         CustomHolderInfo info = new CustomHolderInfo();
         info.setFrom(viewHolder);
         info.setColorTransformInfo(viewHolder);
+        info.setCardEvaluation(viewHolder);
         return info;
     }
 
@@ -109,10 +118,19 @@ public class CustomAnimator extends DefaultItemAnimator {
             dispatchAnimationStarted(oldholder);
         }
 
-        ResizeViewHelper.animateChangeSizeOfView(holder.itemView,
-                preInfo.height,
-                postInfo.height,
-                preInfo.width, postInfo.width);
+        List<AnimationHandler> handlersList = new ArrayList<>();
+        handlersList.add(new EvaluationChangeAnimHandler(preInfo.cardEvaluation, postInfo.cardEvaluation));
+        handlersList.add(new ResizeAnimHandler(preInfo.height, postInfo.height,
+                preInfo.width, postInfo.width));
+
+        AnimPerformer.performStart(handlersList, holder.itemView, this);
+
+//        ResizeViewHelper.animateChangeSizeOfView(holder.itemView,
+//                preInfo.height,
+//                postInfo.height,
+//                preInfo.width, postInfo.width);
+//
+//        CardEvaluationAnimatorHelper.animateChangeSizeOfView(holder.itemView, preInfo.cardEvaluation, postInfo.cardEvaluation);
     }
 
     @Override
@@ -120,9 +138,14 @@ public class CustomAnimator extends DefaultItemAnimator {
         return super.animatePersistence(viewHolder, preInfo, postInfo);
     }
 
+    @Override
+    public void onAnimationEnd() {
+        moveLock = false;
+    }
+
     public static class CustomHolderInfo extends ItemHolderInfo {
         int color;
-        int colorChangeTarget;
+        float cardEvaluation;
 
         int height;
         int width;
@@ -139,7 +162,14 @@ public class CustomAnimator extends DefaultItemAnimator {
                 IColorChanging colorViewHolder = (IColorChanging) holder;
                 color = ((ColorDrawable) colorViewHolder.getColorChangeTarget().getBackground()).getColor();
             }
-            return super.setFrom(holder);
+            return this;
+        }
+
+        public ItemHolderInfo setCardEvaluation(RecyclerView.ViewHolder holder) {
+            if(holder.itemView instanceof CardView){
+                cardEvaluation = ((CardView)holder.itemView).getCardElevation();
+            }
+            return this;
         }
 
         @Override

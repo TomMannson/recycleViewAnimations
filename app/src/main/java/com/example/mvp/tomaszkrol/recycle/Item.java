@@ -79,18 +79,31 @@ public class Item extends AbstractFlexibleItem<Item.Holder> {
                     && holder.binding.additionalData.getVisibility() == View.GONE
                     && holder.binding.content.getVisibility() == View.GONE ) {
                 holder.binding.additionalData.setVisibility(View.VISIBLE);
+                holder.binding.cardRoot.setCardElevation(5);
             }
             else if("CHANGE".equals(payloads.get(0))
                     && holder.binding.additionalData.getVisibility() == View.VISIBLE
                     && holder.binding.content.getVisibility() == View.GONE ) {
                 holder.binding.additionalData.setVisibility(View.GONE);
                 holder.binding.content.setVisibility(View.VISIBLE);
+                holder.binding.cardRoot.setCardElevation(10);
             }
             else if("CHANGE".equals(payloads.get(0))
                     && holder.binding.additionalData.getVisibility() == View.GONE
                     && holder.binding.content.getVisibility() == View.VISIBLE ) {
                 holder.binding.content.setVisibility(View.GONE);
+                holder.binding.cardRoot.setCardElevation(0);
             }
+//            if(holder.binding.cardRoot.getCardElevation() != 10 &&
+//                    holder.binding.cardRoot.getCardElevation() != 20){
+//                holder.binding.cardRoot.setCardElevation(10);
+//            }
+//            else if(holder.binding.cardRoot.getCardElevation() == 10){
+//                holder.binding.cardRoot.setCardElevation(20);
+//            }
+//            else if(holder.binding.cardRoot.getCardElevation() == 20){
+//                holder.binding.cardRoot.setCardElevation(0);
+//            }
         }
         holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override

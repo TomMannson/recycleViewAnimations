@@ -32,20 +32,13 @@ public class ResizeViewHelper {
     public static void animateChangeSizeOfView(final View v, final int hFrom, final int hTo,
             final int wFrom, final int wTo) {
 
-        if(hFrom != hTo){
-            v.getLayoutParams().height = hFrom;
-            v.requestLayout();
-        }
-
-        
-
+        v.getLayoutParams().height = hFrom;
         v.getLayoutParams().width = wFrom;
         v.requestLayout();
 
-        if(hFrom == hTo && wFrom == wTo){
-            return
+        if(hFrom == hTo){
+            return;
         }
-        
 
         final int initialHeight = v.getMeasuredHeight();
         if((hTo - hFrom) < 0){
